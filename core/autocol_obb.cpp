@@ -143,9 +143,41 @@ int fit_obb(const float* verts, int nv,
     // ---- 5. OBB center and extents -----------------------------------------
     vec3 lc(0.5f*(minE[0]+maxE[0]), 0.5f*(minE[1]+maxE[1]), 0.5f*(minE[2]+maxE[2]));
     vec3 wc = mean + V.col(0)*lc.x + V.col(1)*lc.y + V.col(2)*lc.z;
-    out->center[0]=wc.x; out->center[1]=wc.y; out->center[2]=wc.z;
-    for(int k=0;k<3;k++) out->extents[k] = 0.5f*(maxE[k]-minE[k]);
-    for(int r=0;r<3;r++) for(int c2=0;c2<3;c2++) out->rotation[r*3+c2] = V.m[r][c2];
+    float obb_e[3];
+    for(int k=0; k<3; k++) obb_e[k] = 0.5f*(maxE[k]-minE[k]);
+    double obb_vol = (double)obb_e[0] * obb_e[1] * obb_e[2];
+
+    // ---- 6. Comparison with AABB (Stability Check) -------------------------
+    // If the OBB isn't significantly tighter than the AABB, use the AABB.
+    // This prevents "crooked" boxes on nearly-cubic or diagonal parts.
+    float mn[3]={FLT_MAX,FLT_MAX,FLT_MAX}, mx[3]={-FLT_MAX,-FLT_MAX,-FLT_MAX};
+    for(int i=0; i<nv; i++) {
+        if(!used[i]) continue;
+        for(int k=0; k<3; k++) {
+            float v = verts[i*3+k];
+            if(v < mn[k]) mn[k]=v;
+            if(v > mx[k]) mx[k]=v;
+        }
+    }
+    float aabb_e[3];
+    for(int k=0; k<3; k++) aabb_e[k] = 0.5f * (mx[k] - mn[k]);
+    double aabb_vol = (double)aabb_e[0] * aabb_e[1] * aabb_e[2];
+
+    // Threshold: OBB must be at least 10% better (vol < 0.9 * aabb_vol)
+    if(obb_vol >= aabb_vol * 0.9) {
+        // USE AABB (Identity rotation, centered AABB)
+        for(int k=0; k<3; k++) {
+            out->center[k]  = 0.5f * (mn[k] + mx[k]);
+            out->extents[k] = aabb_e[k];
+        }
+        float id[9] = {1,0,0, 0,1,0, 0,0,1};
+        for(int i=0; i<9; i++) out->rotation[i] = id[i];
+    } else {
+        // USE OBB
+        out->center[0]=wc.x; out->center[1]=wc.y; out->center[2]=wc.z;
+        for(int k=0; k<3; k++) out->extents[k] = obb_e[k];
+        for(int r=0; r<3; r++) for(int c2=0; c2<3; c2++) out->rotation[r*3+c2] = V.m[r][c2];
+    }
 
     return 0;
 }
