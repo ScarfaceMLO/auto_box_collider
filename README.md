@@ -27,6 +27,19 @@ AutoCol is a Blender add-on to quickly generate collision boxes (AABB and OBB) f
 4. Click **Generate Collision**.
 5. Use **Remove All** to clear generated boxes.
 
+## 🔄 Orientation Settings
+
+You can now choose the **transform orientation** used for collision generation:
+
+- **Local** – Uses each object's local orientation  
+- **Global** – Uses world/global axes  
+- **Custom (Active)** – Uses the orientation of the active object you have created  
+
+> ⚠️ **Important:**  
+> Choosing the correct orientation is essential for generating straight collision boxes.  
+> If the object's pivot is not properly aligned (or rotated incorrectly relative to the mesh or group), the generated boxes may appear **skewed or misaligned**.
+
+
 ---
 
 ## 🎮 Game Engine Support
