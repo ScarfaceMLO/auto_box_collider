@@ -39,6 +39,23 @@ You can now choose the **transform orientation** used for collision generation:
 > Choosing the correct orientation is essential for generating straight collision boxes.  
 > If the object's pivot is not properly aligned (or rotated incorrectly relative to the mesh or group), the generated boxes may appear **skewed or misaligned**.
 
+## 🚀 New Features
+
+- **Auto Collision Material**  
+  Automatically detects the material and assigns the correct collision material to the poly.
+
+- **Set Sollumz Type**  
+  Automatically sets the Sollumz type to *Bound Poly Box* or *Bound Poly Cylinder*.
+
+- **Attach To**  
+  Choose where the collision object is created: *Active Collection*, *Collection*, or *Object*.
+
+- **Smart Cylinder**  
+  Automatically detects whether a cylinder or a box is needed based on the model.
+
+- **Avoid Unnecessary Box**  
+  Prevents creating unnecessary or extra boxes (use depending on the model).
+
 
 ---
 
