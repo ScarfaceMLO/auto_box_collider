@@ -55,8 +55,10 @@ AUTOCOL_API int compute_multi_obb(
     const float* verts,     int nv,
     const int*   tris,      int nt,
     int          max_boxes,
+    int          use_obb,
     OBBResult*   out_array,
-    int*         out_count);
+    int*         out_count,
+    int*         face_labels);
 
 #ifdef __cplusplus
 }

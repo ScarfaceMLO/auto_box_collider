@@ -7,7 +7,7 @@
 int fit_obb(const float* verts, int nv, const int* tris, int nt, OBBResult* out);
 int fit_aabb(const float* verts, int nv, const int* tris, int nt, OBBResult* out);
 int fit_multi_obb(const float* verts, int nv, const int* tris, int nt,
-                  int K, OBBResult* out_array, int* out_count);
+                  int K, int use_obb, OBBResult* out_array, int* out_count, int* face_labels);
 
 extern "C" {
 
@@ -31,10 +31,12 @@ AUTOCOL_API int compute_multi_obb(
     const float* verts,    int nv,
     const int*   tris,     int nt,
     int          max_boxes,
+    int          use_obb,
     OBBResult*   out_array,
-    int*         out_count)
+    int*         out_count,
+    int*         face_labels)
 {
-    return fit_multi_obb(verts, nv, tris, nt, max_boxes, out_array, out_count);
+    return fit_multi_obb(verts, nv, tris, nt, max_boxes, use_obb, out_array, out_count, face_labels);
 }
 
 } // extern "C"

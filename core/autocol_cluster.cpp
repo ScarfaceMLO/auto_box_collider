@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <queue>
 
+int fit_obb(const float* verts, int nv, const int* tris, int nt, OBBResult* out);
 int fit_aabb(const float* verts, int nv, const int* tris, int nt, OBBResult* out);
 
 /* ---- dist squared -------------------------------------------------------- */
@@ -62,10 +63,17 @@ int fit_multi_obb(
     const float* verts, int nv,
     const int*   tris,  int nt,
     int          K,
+    int          use_obb,
     OBBResult*   out_array,
-    int*         out_count)
+    int*         out_count,
+    int*         face_labels)
 {
-    if(!verts||!tris||nv<3||nt<1||!out_array||!out_count) return -1;
+    if(!verts) return -101;
+    if(!tris) return -102;
+    if(nv < 3) return -103;
+    if(nt < 1) return -104;
+    if(!out_array) return -105;
+    if(!out_count) return -106;
     if(K<1) K=1;
     if(K>nt) K=nt;
 
@@ -197,6 +205,11 @@ int fit_multi_obb(
     std::vector<int> flabel(nt);
     for(int t=0;t<nt;t++) flabel[t]=clabel[patch[t]];
 
+    // Copy to output if requested
+    if(face_labels){
+        for(int t=0;t<nt;t++) face_labels[t] = flabel[t];
+    }
+
     /* ==================================================================
      * PHASE 3 – One AABB per cluster (local remapped mesh)
      * ================================================================= */
@@ -222,10 +235,14 @@ int fit_multi_obb(
             }
         }
         if(lt.empty()) continue;
+        
+        int ret = -1;
+        if(use_obb) 
+            ret = fit_obb(lv.data(), (int)(lv.size()/3), lt.data(), (int)(lt.size()/3), &out_array[written]);
+        else
+            ret = fit_aabb(lv.data(), (int)(lv.size()/3), lt.data(), (int)(lt.size()/3), &out_array[written]);
 
-        if(fit_aabb(lv.data(),(int)(lv.size()/3),
-                    lt.data(),(int)(lt.size()/3),
-                    &out_array[written])==0)
+        if(ret == 0)
             written++;
     }
 
